@@ -1,0 +1,10 @@
+dist/
+__pycache__/
+
+poetry.lock
+*.swp
+.envrc
+docs/source/generated/
+docs/en/**/doctrees/
+docs/zh_CN/**/doctrees/
+docs/en/**/gettext/
