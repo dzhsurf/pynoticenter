@@ -5,21 +5,17 @@ from typing import Any
 
 from pynoticenter.noticenter import PyNotiCenter
 
+# setup logger
+stdout_handler = logging.StreamHandler(sys.stdout)
+handlers = [stdout_handler]
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
+    handlers=handlers,
+)
+logger = logging.getLogger(__name__)
 
-def config_logger(logger_name: str, level=logging.INFO) -> logging.Logger:
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    handlers = [stdout_handler]
-    logging.basicConfig(
-        level=level,
-        format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
-        handlers=handlers,
-    )
-    return logging.getLogger(logger_name)
-
-
-logger = config_logger(__name__)
-
-
+# demo
 def fn(*args: Any, **kwargs: Any):
     desc = ""
     for v in args:
@@ -35,6 +31,12 @@ def fn(*args: Any, **kwargs: Any):
 def main():
     print("demo start.")
     PyNotiCenter.default_center().post_task(
+        fn,
+        "fn1",
+        desc="post task",
+    )
+    PyNotiCenter.default_center().post_task_to_task_queue(
+        "background_thread",
         fn,
         "fn1",
         desc="post task",
@@ -62,7 +64,8 @@ def main():
         "fn4",
         value="post task",
     )
-    time.sleep(0.3)
+    #time.sleep(0.3)
+    PyNotiCenter.default_center().release_task_queue("background_thread", True)
     PyNotiCenter.default_center().cancel_task(task_id)
     PyNotiCenter.default_center().shutdown(wait=True)
     print("demo end.")

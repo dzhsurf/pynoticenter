@@ -40,6 +40,9 @@ class PyNotiTaskQueue(object):
 
     def terminate(self, wait: bool = True, wait_interval: float = 1.0):
         # terminate thread and stop event loop
+        with self.__lock:
+            if self.__is_terminated:
+                return
         logging.info(f"{self.__log_prefix__()}: Task queue terminate. wait: {wait}")
         with self.__lock:
             self.__is_terminated = True
@@ -54,8 +57,8 @@ class PyNotiTaskQueue(object):
                 self.__loop.call_soon_threadsafe(self.__cleannup_thread__)
         self.__wait_until_thread_exit__(wait_interval)
 
-    def schedule_task(self, fn: callable, **kwargs: Any) -> str:
-        return self.schedule_task_with_delay(delay=0, fn=fn, **kwargs)
+    def schedule_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
+        return self.schedule_task_with_delay(0, fn, *args, **kwargs)
 
     def schedule_task_with_delay(self, delay: int, fn: callable, *args: Any, **kwargs: Any) -> str:
         task_id = ""

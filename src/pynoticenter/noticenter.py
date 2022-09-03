@@ -26,8 +26,8 @@ class PyNotiCenter:
     def __init__(self):
         self.__lock = threading.RLock()
         self.__task_queue = PyNotiTaskQueue(None)
-        self.__task_queue_dict = dict()
-        self.__unnamed_task_queue = list()
+        self.__task_queue_dict = dict[str, PyNotiTaskQueue]()
+        self.__unnamed_task_queue = list[PyNotiTaskQueue]()
 
     @staticmethod
     def default_center() -> PyNotiCenter:
@@ -47,10 +47,12 @@ class PyNotiCenter:
         with self.__lock:
             return self.__task_queue.schedule_task_with_delay(delay, fn, *args, **kwargs)
 
-    def post_task_to_task_queue(self, queue_name: str, task: callback, **kwargs: Any) -> str:
+    def post_task_to_task_queue(self, queue_name: str, fn: callable, *args: Any, **kwargs: Any) -> str:
         with self.__lock:
-            queue = self.get_task_queue(queue_name)
-            return queue.schedule_task(task, **kwargs)
+            q = self.get_task_queue(queue_name)
+            if q is None:
+                q = self.create_task_queue(queue_name)
+            return q.schedule_task(fn, *args, **kwargs)
 
     def cancel_task(self, task_id):
         with self.__lock:
@@ -58,14 +60,22 @@ class PyNotiCenter:
 
     def cancel_task_with_queue_name(self, queue_name: str, task_id: str):
         queue = self.get_task_queue(queue_name)
-        queue.cancel_task(task_id)
+        if queue is not None:
+            queue.cancel_task(task_id)
 
     def shutdown(self, wait: bool):
-        """Shutdown all tasks, include the unnamed task queue."""
+        """Shutdown all tasks, include the unnamed task queue.
+
+        Args:
+            wait (bool): wait until all task done.
+        """
         task_queue = list[PyNotiTaskQueue]()
         with self.__lock:
             # mark shutdown
             self.__is_shutdown = True
+            for q in self.__unnamed_task_queue:
+                task_queue.append(q)
+            self.__unnamed_task_queue.clear()
             for _, q in self.__task_queue_dict.items():
                 task_queue.append(q)
             self.__task_queue_dict.clear()
@@ -76,19 +86,32 @@ class PyNotiCenter:
         with self.__lock:
             self.__task_queue.terminate(wait)
 
-    def get_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
-        """Get task queue from notification center.
+    def release_task_queue(self, queue_name: str, wait: bool):
+        """release task queue resource.
 
-        All task queue will manage by notification center. If the queue name doesn't exist, it will create one and return.
-        If you pass an None value for queue_name, it means it will retuan an unnamed task queue.
+        Args:
+            queue_name (str): queue name
+            wait (bool): wait until task done
+        """
+        if queue_name is None:
+            return
+        with self.__lock:
+            if queue_name in self.__task_queue_dict:
+                queue = self.__task_queue_dict.pop(queue_name)
+                queue.terminate(wait)
+
+    def create_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
+        """Create task queue by name.
+
+        If name always exist, it will return the existen queue.
+        If name is None, it will create unnamed task queue.
 
         Args:
             queue_name (str): queue name
 
         Returns:
-            PyNotiTaskQueue: return task queue
+            PyNotiTaskQueue: task queue
         """
-
         if queue_name is None:
             queue = PyNotiTaskQueue(queue_name)
             with self.__lock:
@@ -104,3 +127,22 @@ class PyNotiCenter:
         with self.__lock:
             self.__task_queue_dict[queue_name] = queue
         return queue
+
+    def get_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
+        """Get task queue from notification center.
+
+        If name not exist, return None.
+
+        Args:
+            queue_name (str): queue name
+
+        Returns:
+            PyNotiTaskQueue: return task queue
+        """
+
+        if queue_name is None:
+            return None
+
+        with self.__lock:
+            if queue_name in self.__task_queue_dict:
+                return self.__task_queue_dict[queue_name]
