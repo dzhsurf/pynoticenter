@@ -47,7 +47,7 @@ def say_hello(who: str):
     print(f"{who}: hello")
 
 def main():
-  	PyNotiCenter.default().register_notification("say_hello", say_hello)
+    PyNotiCenter.default().register_notification("say_hello", say_hello)
     PyNotiCenter.default().notify("say_hello", "baby")
     ...
     PyNotiCenter.default_center().shutdown(wait=True)
