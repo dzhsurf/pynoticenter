@@ -15,14 +15,16 @@ pip install pynoticenter
 
 ## Code Example
 
+1. post task to task queue.
+
 ```python
 def fn(*args: Any, **kwargs: Any):
     print(*args)
 
 def main():
-    PyNotiCenter.default_center().post_task(fn, "hello world")
-    PyNotiCenter.default_center().post_task_with_delay(5, fn, "hello", "world", "delay 5s")
-    PyNotiCenter.default_center().shutdown(wait=True)
+    PyNotiCenter.default().post_task(fn, "hello world")
+    PyNotiCenter.default().post_task_with_delay(5, fn, "hello", "world", "delay 5s")
+    PyNotiCenter.default().shutdown(wait=True)
 ```
 
 ```shell
@@ -37,3 +39,17 @@ hello world delay 5s
 [2022-09-03 20:54:28,723] {task_queue.py:200} INFO - TaskQueue[4408264928]: worker thread end.
 [2022-09-03 20:54:29,726] {task_queue.py:126} INFO - TaskQueue[4408264928]: thread exit. wait time: 1.0
 ```
+
+2. Notification 
+
+```python
+def say_hello(who: str):
+    print(f"{who}: hello")
+
+def main():
+  	PyNotiCenter.default().register_notification("say_hello", say_hello)
+    PyNotiCenter.default().notify("say_hello", "baby")
+    ...
+    PyNotiCenter.default_center().shutdown(wait=True)
+```
+
