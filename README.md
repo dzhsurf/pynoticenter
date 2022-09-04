@@ -58,8 +58,8 @@ class A:
 
 def main():
     receiver = A()
-    PyNotiCenter.default().add_observer("say_hello", receiver, receiver.say_hello)
-    PyNotiCenter.default().notify("say_hello", "baby")
+    PyNotiCenter.default().add_observer("say_hello", receiver.say_hello, receiver)
+    PyNotiCenter.default().notify_observers("say_hello", "baby")
     ...
     PyNotiCenter.default().remove_observers(receiver)
     PyNotiCenter.default().shutdown(wait=True)
@@ -80,7 +80,7 @@ def main():
     queue.post_task(fn) # fn run in gtk thread
     
     # notification run on mytask queue.
-    PyNotiCenter.default().add_observer("say_hello", None, fn, options=PyNotiOptions(queue="mytask"))
-    PyNotiCenter.default().notify("say_hello")
+    PyNotiCenter.default().add_observer("say_hello", fn, options=PyNotiOptions(queue="mytask"))
+    PyNotiCenter.default().notify_observers("say_hello")
 ```
 
