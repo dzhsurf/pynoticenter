@@ -4,6 +4,7 @@ import threading
 import time
 from typing import Any
 
+from pynoticenter import utils
 from pynoticenter.task import PyNotiTask
 
 
@@ -38,12 +39,13 @@ class PyNotiTaskQueue(object):
         with self.__lock:
             return len(self.__task_dict)
 
-    def terminate(self, wait: bool = True, wait_interval: float = 1.0):
-        # terminate thread and stop event loop
+    def __terminate_thread_callback__(self, wait: bool):
+        # run in thread.
+        wait_interval = 0.5
         with self.__lock:
             if self.__is_terminated:
                 return
-        logging.info(f"{self.__log_prefix__()}: Task queue terminate. wait: {wait}")
+
         with self.__lock:
             self.__is_terminated = True
             self.__wait_until_task_done = wait
@@ -56,6 +58,13 @@ class PyNotiTaskQueue(object):
             if self.__loop is not None:
                 self.__loop.call_soon_threadsafe(self.__cleannup_thread__)
         self.__wait_until_thread_exit__(wait_interval)
+
+    def terminate(self, wait: bool = True):
+        # terminate thread and stop event loop
+        logging.info(f"{self.__log_prefix__()}: Task queue terminate. wait: {wait}")
+        event = utils.RunInThread(self.__terminate_thread_callback__, wait)
+        if wait:
+            utils.Wait(event)
 
     def schedule_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
         return self.schedule_task_with_delay(0, fn, *args, **kwargs)

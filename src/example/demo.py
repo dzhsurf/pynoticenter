@@ -25,7 +25,8 @@ def fn(*args: Any, **kwargs: Any):
 def main():
     PyNotiCenter.default_center().post_task(fn, "hello world")
     PyNotiCenter.default_center().post_task_with_delay(5, fn, "hello", "world", "delay 5s")
-    PyNotiCenter.default_center().shutdown(wait=True)
+    PyNotiCenter.default_center().shutdown(wait=False)
+    print("main end")
 
 
 if __name__ == "__main__":
