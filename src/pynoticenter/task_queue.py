@@ -64,7 +64,7 @@ class PyNotiTaskQueue(object):
         task_id = ""
         with self.__lock:
             if self.is_terminated:
-                logging.info(f"{log_prefix}: task queue is terminated. ignore new task.")
+                logging.info(f"{self.__log_prefix__():}: task queue is terminated. ignore new task.")
                 return
 
             if not self.__is_started:

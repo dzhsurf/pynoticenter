@@ -16,58 +16,27 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # demo
+
+
 def fn(*args: Any, **kwargs: Any):
     desc = ""
     for v in args:
-        desc += v
+        desc += v + ", "
     if desc != "":
         desc += " "
     desc += "kwargs: "
     for k, v in kwargs.items():
-        desc += f"{k} = {v}"
+        desc += f"{k} = {v}, "
     print(desc)
 
 
 def main():
+
     print("demo start.")
-    PyNotiCenter.default_center().post_task(
-        fn,
-        "fn1",
-        desc="post task",
-    )
-    PyNotiCenter.default_center().post_task_to_task_queue(
-        "background_thread",
-        fn,
-        "fn1",
-        desc="post task",
-    )
-    PyNotiCenter.default_center().post_task_with_delay(
-        3,
-        fn,
-        "fn2",
-        desc="post task with delay 3",
-    )
-    PyNotiCenter.default_center().post_task_with_delay(
-        10,
-        fn,
-        "fn3",
-        value="post task with delay 10",
-    )
-    task_id = PyNotiCenter.default_center().post_task_with_delay(
-        4,
-        fn,
-        "fn3",
-        value="post task with delay 4",
-    )
-    PyNotiCenter.default_center().post_task(
-        fn,
-        "fn4",
-        value="post task",
-    )
-    #time.sleep(0.3)
-    PyNotiCenter.default_center().release_task_queue("background_thread", True)
-    PyNotiCenter.default_center().cancel_task(task_id)
-    PyNotiCenter.default_center().shutdown(wait=True)
+    for i in range(100000):
+        PyNotiCenter.default_center().post_task(fn, f"hello {i}", key="k", value="v")
+    time.sleep(0.5)
+    PyNotiCenter.default_center().shutdown(wait=False)
     print("demo end.")
 
 

@@ -128,6 +128,10 @@ class PyNotiCenter:
             self.__task_queue_dict[queue_name] = queue
         return queue
 
+    def get_default_task_queue(self) -> PyNotiTaskQueue:
+        with self.__lock:
+            return self.__task_queue
+
     def get_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
         """Get task queue from notification center.
 
@@ -146,3 +150,11 @@ class PyNotiCenter:
         with self.__lock:
             if queue_name in self.__task_queue_dict:
                 return self.__task_queue_dict[queue_name]
+
+    def register_notification(self, name: str, fn: callable):
+        """register notification"""
+        pass
+
+    def notify(self, name: str, *args: Any, **kwargs: Any):
+        """post notification"""
+        pass
