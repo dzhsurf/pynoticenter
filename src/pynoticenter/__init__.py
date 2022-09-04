@@ -4,4 +4,4 @@ from .noticenter import *
 from .task import *
 from .task_queue import *
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

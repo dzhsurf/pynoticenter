@@ -17,8 +17,10 @@ logger = logging.getLogger(__name__)
 
 # demo
 
+
 def fn(*args: Any, **kwargs: Any):
     print(*args)
+
 
 def main():
     PyNotiCenter.default_center().post_task(fn, "hello world")
