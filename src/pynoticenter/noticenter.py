@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import queue
 import threading
 
@@ -17,10 +18,12 @@ class PyNotiCenter:
     global __default_global_lock
     __default_global_lock = threading.RLock()
 
+    __lock: threading.RLock = None
     __task_queue: PyNotiTaskQueue = None
     __task_queue_dict: dict[str, PyNotiTaskQueue] = None
     __unnamed_task_queue: list[PyNotiTaskQueue] = None
-    __lock: threading.RLock = None
+    __notification_task_queue: PyNotiTaskQueue = None
+    __notification_fn_dict: dict[str, callable] = None
     __is_shutdown: bool = False
 
     def __init__(self):
@@ -28,9 +31,11 @@ class PyNotiCenter:
         self.__task_queue = PyNotiTaskQueue(None)
         self.__task_queue_dict = dict[str, PyNotiTaskQueue]()
         self.__unnamed_task_queue = list[PyNotiTaskQueue]()
+        self.__notification_task_queue = PyNotiTaskQueue(None)
+        self.__notification_fn_dict = dict[str, callable]()
 
     @staticmethod
-    def default_center() -> PyNotiCenter:
+    def default() -> PyNotiCenter:
         global __default_global_lock
         global __default_global_instance
         with __default_global_lock:
@@ -82,9 +87,10 @@ class PyNotiCenter:
         # terminate other task queue
         for q in task_queue:
             q.terminate(wait)
+        # notification task queue
+        self.__notification_task_queue.terminate(wait)
         # terminate default task queue
-        with self.__lock:
-            self.__task_queue.terminate(wait)
+        self.__task_queue.terminate(wait)
 
     def release_task_queue(self, queue_name: str, wait: bool):
         """release task queue resource.
@@ -153,8 +159,24 @@ class PyNotiCenter:
 
     def register_notification(self, name: str, fn: callable):
         """register notification"""
-        pass
+        with self.__lock:
+            if name in self.__notification_fn_dict:
+                logging.warn(f"notification name exist. name = {name}")
+                return
+            self.__notification_fn_dict[name] = fn
 
     def notify(self, name: str, *args: Any, **kwargs: Any):
         """post notification"""
-        pass
+        self.__notification_task_queue.schedule_task(self.__notify__, name, *args, **kwargs)
+
+    def __notify__(self, name: str, *args: Any, **kwargs: Any):
+        fn: callable = None
+        with self.__lock:
+            if name not in self.__notification_fn_dict:
+                logging.warn(f"notification name not exist. name = {name}")
+            fn = self.__notification_fn_dict[name]
+        if fn is not None:
+            try:
+                fn(*args, **kwargs)
+            except Exception as e:
+                logging.error(e)

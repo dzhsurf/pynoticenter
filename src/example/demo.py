@@ -22,11 +22,17 @@ def fn(*args: Any, **kwargs: Any):
     print(*args)
 
 
+def say_hello(who: str):
+    print(f"{who}: hello")
+
+
 def main():
-    PyNotiCenter.default_center().post_task(fn, "hello world")
-    PyNotiCenter.default_center().post_task_with_delay(5, fn, "hello", "world", "delay 5s")
-    PyNotiCenter.default_center().shutdown(wait=False)
-    print("main end")
+    PyNotiCenter.default().register_notification("SayHello", say_hello)
+
+    PyNotiCenter.default().post_task(fn, "hello world")
+    PyNotiCenter.default().notify("SayHello", "Ally")
+    PyNotiCenter.default().post_task_with_delay(5, fn, "hello", "world", "delay 5s")
+    PyNotiCenter.default().shutdown(wait=True)
 
 
 if __name__ == "__main__":

@@ -54,4 +54,7 @@ class PyNotiTask(object):
         if self.__fn is None:
             return
         logging.debug(f"Task[{self.__task_id}] execute.")
-        self.__fn(*self.__args, **self.__kwargs)
+        try:
+            self.__fn(*self.__args, **self.__kwargs)
+        except Exception as e:
+            logging.error(e)
