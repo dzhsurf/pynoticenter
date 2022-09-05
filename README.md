@@ -71,8 +71,9 @@ def main():
 def fn():
     pass 
 
-def switch_to_gtk_thread(fn: callable, *args: Any, **kwargs):
+def switch_to_gtk_thread(fn: callable, *args: Any, **kwargs) -> bool:
     GLib.idle_add(fn)
+    return True
 
 def main():
     queue = PyNotiCenter.default().create_task_queue("mytask")
