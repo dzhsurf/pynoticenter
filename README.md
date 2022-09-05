@@ -53,7 +53,7 @@ hello world delay 5s
 
 ```python
 class A:
-    def say_hello(who: str):
+    def say_hello(self, who: str):
         print(f"{who}: hello")
 
 def main():
