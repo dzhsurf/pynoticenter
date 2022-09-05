@@ -179,7 +179,6 @@ class PyNotiTaskQueue(object):
                 return
 
             if task.delay == 0:
-                self.__pop_task__(task_id)
                 need_execute = True
             else:
                 delay = task.delay
@@ -190,6 +189,7 @@ class PyNotiTaskQueue(object):
 
         if need_execute:
             task.execute()
+            self.__pop_task__(task_id)
 
     def __worker_thread__(self):
         logging.info(f"{self.__log_prefix__()}: worker thread begin.")

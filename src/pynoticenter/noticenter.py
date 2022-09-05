@@ -153,6 +153,28 @@ class PyNotiCenter:
         if queue is not None:
             queue.cancel_task(task_id)
 
+    def wait_until_task_complete(self):
+        event = threading.Event()
+        while not event.is_set():
+            wait = False
+            with self.__lock:
+                for q in self.__unnamed_task_queue:
+                    if q.task_count > 0:
+                        wait = True
+                    if wait:
+                        break
+                for _, q in self.__task_queue_dict.items():
+                    if q.task_count > 0:
+                        wait = True
+                    if wait:
+                        break
+                if self.__default_queue.task_count > 0:
+                    wait = True
+            if not wait:
+                event.set()
+            else:
+                event.wait(timeout=0.5)
+
     def shutdown(self, wait: bool):
         """Shutdown all tasks, include the unnamed task queue.
 
