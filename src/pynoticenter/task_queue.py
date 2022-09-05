@@ -66,10 +66,10 @@ class PyNotiTaskQueue(object):
         if wait:
             utils.Wait(event)
 
-    def schedule_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
-        return self.schedule_task_with_delay(0, fn, *args, **kwargs)
+    def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
+        return self.post_task_with_delay(0, fn, *args, **kwargs)
 
-    def schedule_task_with_delay(self, delay: int, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_with_delay(self, delay: int, fn: callable, *args: Any, **kwargs: Any) -> str:
         task_id = ""
         with self.__lock:
             if self.is_terminated:

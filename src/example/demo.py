@@ -26,12 +26,36 @@ def say_hello(who: str):
     print(f"{who}: hello")
 
 
-def main():
-    PyNotiCenter.default().register_notification("SayHello", say_hello)
+class A:
+    def say_hi(self, who: str):
+        print(f"A.say_hi, {who}: hi")
 
-    PyNotiCenter.default().post_task(fn, "hello world")
-    PyNotiCenter.default().notify("SayHello", "Ally")
-    PyNotiCenter.default().post_task_with_delay(5, fn, "hello", "world", "delay 5s")
+    def say_bye(self, who: str):
+        print(f"A.say_bye, {who}: bye")
+
+
+def main():
+    a = A()
+    PyNotiCenter.default().add_observer("say_hello", say_hello)
+    PyNotiCenter.default().add_observer("say_hello", a.say_hi, a)
+    PyNotiCenter.default().add_observer("say_hi", a.say_hi, a)
+    PyNotiCenter.default().add_observer("say_bye", a.say_bye, a)
+
+    PyNotiCenter.default().notify_observers("say_hello", "Terry")
+    PyNotiCenter.default().notify_observers("say_hi", "Terry")
+    time.sleep(1)
+
+    PyNotiCenter.default().remove_observer("say_hello", say_hello)
+    PyNotiCenter.default().notify_observers("say_hello", "Tommy")
+    time.sleep(1)
+
+    PyNotiCenter.default().remove_observer("say_bye", a.say_bye, a)
+    PyNotiCenter.default().notify_observers("say_bye", "Terry")
+    time.sleep(1)
+
+    PyNotiCenter.default().remove_observers(a)
+    PyNotiCenter.default().notify_observers("say_hello", "Andy")
+
     PyNotiCenter.default().shutdown(wait=True)
 
 
