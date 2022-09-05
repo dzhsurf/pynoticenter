@@ -24,7 +24,7 @@ class PyNotiObserverCollection:
         self.__fn_list = list[callable]()
         self.__receiver_observers_dict = dict[Any, list[callable]]()
 
-    def add_observer(self, fn: callable, receiver: Any | None = None):
+    def add_observer(self, fn: callable, receiver: Any | None = None, *, options: PyNotiOptions | None = None):
         if fn is None:
             return
 
@@ -39,7 +39,6 @@ class PyNotiObserverCollection:
                 self.__receiver_observers_dict[receiver] = list([fn])
 
     def remove_observer(self, fn: callable, receiver: Any | None = None):
-
         def remove_fn(item) -> bool:
             return item == fn
 
@@ -139,18 +138,18 @@ class PyNotiCenter:
         Args:
             wait (bool): wait until all task done.
         """
-        task_queue = list[PyNotiTaskQueue]()
+        task_queues = list[PyNotiTaskQueue]()
         with self.__lock:
             # mark shutdown
             self.__is_shutdown = True
             for q in self.__unnamed_task_queue:
-                task_queue.append(q)
+                task_queues.append(q)
             self.__unnamed_task_queue.clear()
             for _, q in self.__task_queue_dict.items():
-                task_queue.append(q)
+                task_queues.append(q)
             self.__task_queue_dict.clear()
         # terminate other task queue
-        for q in task_queue:
+        for q in task_queues:
             q.terminate(wait)
         # terminate default task queue
         self.__default_queue.terminate(wait)
@@ -204,7 +203,7 @@ class PyNotiCenter:
     def get_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
         """Get task queue from notification center.
 
-        If name not exist, return None.
+        If name is None, return default task queue.
 
         Args:
             queue_name (str): queue name
@@ -214,13 +213,15 @@ class PyNotiCenter:
         """
 
         if queue_name is None:
-            return None
+            return self.__default_queue
 
         with self.__lock:
             if queue_name in self.__task_queue_dict:
                 return self.__task_queue_dict[queue_name]
 
-    def add_observer(self, name: str, fn: callable, receiver: Any | None = None):
+    def add_observer(
+        self, name: str, fn: callable, receiver: Any | None = None, *, options: PyNotiOptions | None = None
+    ):
         """add notification observer"""
         with self.__lock:
             observer_collection: PyNotiObserverCollection = None
@@ -230,7 +231,7 @@ class PyNotiCenter:
             if observer_collection is None:
                 observer_collection = PyNotiObserverCollection(name)
 
-            observer_collection.add_observer(fn, receiver)
+            observer_collection.add_observer(fn, receiver, options=options)
             self.__notifications_dict[name] = observer_collection
 
     def remove_observer(self, name: str, fn: callable, receiver: Any | None = None):

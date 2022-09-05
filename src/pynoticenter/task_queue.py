@@ -76,14 +76,17 @@ class PyNotiTaskQueue(object):
                 logging.info(f"{self.__log_prefix__():}: task queue is terminated. ignore new task.")
                 return
 
-            if not self.__is_started:
-                self.__is_started = True
-                self.__thread.start()
-
+            # add task
             task_id = str(self.__task_id_count + 1)
             self.__task_id_count += 1
             self.__task_dict[task_id] = PyNotiTask(task_id, delay, fn, *args, **kwargs)
 
+            # start thread
+            if not self.__is_started:
+                self.__is_started = True
+                self.__thread.start()
+
+            # dispatch task, if thread not create, record it and it will be reschedule later.
             if self.__loop is not None:
                 # cross thread function call, must use threadsafe.
                 self.__loop.call_soon_threadsafe(self.__schedule_task__, task_id)
@@ -127,7 +130,7 @@ class PyNotiTaskQueue(object):
         wait_time = 0.0
         while True:
             with self.__lock:
-                if self.__thread is None:
+                if self.__thread is None or not self.__is_started:
                     break
             wait_time += wait_interval
             time.sleep(wait_interval)

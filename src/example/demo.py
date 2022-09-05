@@ -4,6 +4,7 @@ import time
 from typing import Any
 
 from pynoticenter.noticenter import PyNotiCenter
+from pynoticenter.options import PyNotiOptions
 
 # setup logger
 stdout_handler = logging.StreamHandler(sys.stdout)
@@ -35,9 +36,11 @@ class A:
 
 
 def main():
+    queue = PyNotiCenter.default().create_task_queue("mytask")
+
     a = A()
     PyNotiCenter.default().add_observer("say_hello", say_hello)
-    PyNotiCenter.default().add_observer("say_hello", a.say_hi, a)
+    PyNotiCenter.default().add_observer("say_hello", a.say_hi, a, options=PyNotiOptions(queue="mytask"))
     PyNotiCenter.default().add_observer("say_hi", a.say_hi, a)
     PyNotiCenter.default().add_observer("say_bye", a.say_bye, a)
 
