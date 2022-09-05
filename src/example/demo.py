@@ -35,29 +35,27 @@ class A:
         print(f"A.say_bye, {who}: bye")
 
 
+def mytask2_fn():
+    print("mytask2 fn")
+
+
+def mytask_preprocessor(fn: callable, *args: Any, **kwargs: Any) -> bool:
+    print("mytask preprocessor")
+    # IF YOU SCHEDULE NEW TASK AFTER YOU SHUTDOWN THE PYNOTICENTER, IT WILL BE IGNORED.
+    # PyNotiCenter.default().post_task_to_task_queue("mytask2", mytask2_fn)
+    return False
+
+
 def main():
     queue = PyNotiCenter.default().create_task_queue("mytask")
+    queue.set_preprocessor(mytask_preprocessor)
 
     a = A()
     PyNotiCenter.default().add_observer("say_hello", say_hello)
+    PyNotiCenter.default().add_observer("say_hello", a.say_hi, a)
     PyNotiCenter.default().add_observer("say_hello", a.say_hi, a, options=PyNotiOptions(queue="mytask"))
-    PyNotiCenter.default().add_observer("say_hi", a.say_hi, a)
-    PyNotiCenter.default().add_observer("say_bye", a.say_bye, a)
 
-    PyNotiCenter.default().notify_observers("say_hello", "Terry")
-    PyNotiCenter.default().notify_observers("say_hi", "Terry")
-    time.sleep(1)
-
-    PyNotiCenter.default().remove_observer("say_hello", say_hello)
-    PyNotiCenter.default().notify_observers("say_hello", "Tommy")
-    time.sleep(1)
-
-    PyNotiCenter.default().remove_observer("say_bye", a.say_bye, a)
-    PyNotiCenter.default().notify_observers("say_bye", "Terry")
-    time.sleep(1)
-
-    PyNotiCenter.default().remove_observers(a)
-    PyNotiCenter.default().notify_observers("say_hello", "Andy")
+    PyNotiCenter.default().notify_observers("say_hello", "lily")
 
     PyNotiCenter.default().shutdown(wait=True)
 

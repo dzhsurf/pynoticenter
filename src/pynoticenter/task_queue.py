@@ -21,6 +21,7 @@ class PyNotiTaskQueue(object):
     __first_tasks: list[str] = None
     __thread: threading.Thread = None
     __loop: asyncio.AbstractEventLoop = None
+    __preprocessor: callable = None
 
     def __init__(self, name: str):
         self.__name = name if name is not None else f"{id(self)}"
@@ -28,6 +29,7 @@ class PyNotiTaskQueue(object):
         self.__task_dict = dict()
         self.__first_tasks = list()
         self.__thread = threading.Thread(target=self.__worker_thread__)
+        self.__preprocessor = None
 
     @property
     def is_terminated(self) -> bool:
@@ -66,6 +68,10 @@ class PyNotiTaskQueue(object):
         if wait:
             utils.Wait(event)
 
+    def set_preprocessor(self, preprocessor: callable):
+        with self.__lock:
+            self.__preprocessor = preprocessor
+
     def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
         return self.post_task_with_delay(0, fn, *args, **kwargs)
 
@@ -79,7 +85,7 @@ class PyNotiTaskQueue(object):
             # add task
             task_id = str(self.__task_id_count + 1)
             self.__task_id_count += 1
-            self.__task_dict[task_id] = PyNotiTask(task_id, delay, fn, *args, **kwargs)
+            self.__task_dict[task_id] = PyNotiTask(task_id, delay, fn, self.__preprocessor, *args, **kwargs)
 
             # start thread
             if not self.__is_started:

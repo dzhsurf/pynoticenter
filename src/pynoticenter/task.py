@@ -5,6 +5,7 @@ from typing import Any
 
 class PyNotiTask(object):
     __task_id: str = ""
+    __preprocessor: callable = None
     __delay: int = 0
     __fn: callable = None
     __args: Any = None
@@ -16,10 +17,12 @@ class PyNotiTask(object):
         task_id: str,
         delay: int,
         fn: callable,
+        preprocessor: callable,
         *args: Any,
         **kwargs: Any,
     ):
         self.__task_id = task_id
+        self.__preprocessor = preprocessor
         self.__delay = delay
         self.__fn = fn
         self.__args = args
@@ -55,6 +58,10 @@ class PyNotiTask(object):
             return
         logging.debug(f"Task[{self.__task_id}] execute.")
         try:
-            self.__fn(*self.__args, **self.__kwargs)
+            handled = False
+            if self.__preprocessor is not None:
+                handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
+            if not handled:
+                self.__fn(*self.__args, **self.__kwargs)
         except Exception as e:
             logging.error(e)
