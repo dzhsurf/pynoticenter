@@ -6,7 +6,7 @@ from typing import Any
 class PyNotiTask(object):
     __task_id: str = ""
     __preprocessor: callable = None
-    __delay: int = 0
+    __delay: float = 0
     __fn: callable = None
     __args: Any = None
     __kwargs: dict[str, Any] = None
@@ -15,7 +15,7 @@ class PyNotiTask(object):
     def __init__(
         self,
         task_id: str,
-        delay: int,
+        delay: float,
         fn: callable,
         preprocessor: callable,
         *args: Any,
@@ -29,10 +29,10 @@ class PyNotiTask(object):
         self.__kwargs = kwargs
 
     @property
-    def delay(self) -> int:
+    def delay(self) -> float:
         return self.__delay
 
-    def set_delay(self, delay: int):
+    def set_delay(self, delay: float):
         self.__delay = delay
 
     @property

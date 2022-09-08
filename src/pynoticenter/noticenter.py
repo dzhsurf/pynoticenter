@@ -130,7 +130,7 @@ class PyNotiCenter:
         """Post task to default task queue."""
         return self.post_task_with_delay(0, fn, *args, **kwargs)
 
-    def post_task_with_delay(self, delay: int, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
         """Post task with delay to default task queue."""
         with self.__lock:
             return self.__default_queue.post_task_with_delay(delay, fn, *args, **kwargs)
