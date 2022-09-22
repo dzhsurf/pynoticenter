@@ -49,6 +49,24 @@ hello world delay 5s
 [2022-09-03 20:54:29,726] {task_queue.py:126} INFO - TaskQueue[4408264928]: thread exit. wait time: 1.0
 ```
 
+```python
+# async func
+async def async_fn(msg: str):
+  await asyncio.sleep(1)
+  print(f"msg: {msg}")
+ 
+def fn(msg: str):
+  print(f"msg: {msg}")
+  
+def main():
+  PyNotiCenter.default().post_task(fn, "hello")
+  PyNotiCenter.default().post_task(async_fn, "hello")
+  PyNotiCenter.default().wait_until_task_complete()
+  PyNotiCenter.default().shutdown(wait=True)
+```
+
+
+
 * Notification
 
 ```python

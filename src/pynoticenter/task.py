@@ -1,7 +1,8 @@
 import asyncio
 import logging
+import threading
 from concurrent.futures import ThreadPoolExecutor
-from inspect import iscoroutine
+from inspect import iscoroutine, iscoroutinefunction
 from typing import Any, Awaitable, Callable, Coroutine
 
 
@@ -10,10 +11,10 @@ class PyNotiTask(object):
     __preprocessor: callable = None
     __delay: float = 0
     __fn: callable = None
-    __is_async: bool = False
     __args: Any = None
     __kwargs: dict[str, Any] = None
     __timer_handle: asyncio.TimerHandle = None
+    __thread_pool: ThreadPoolExecutor = None
 
     def __init__(
         self,
@@ -22,6 +23,7 @@ class PyNotiTask(object):
         fn: callable,
         preprocessor: callable,
         *args: Any,
+        executor: ThreadPoolExecutor,
         **kwargs: Any,
     ):
         self.__task_id = task_id
@@ -30,19 +32,11 @@ class PyNotiTask(object):
         self.__fn = fn
         self.__args = args
         self.__kwargs = kwargs
-        self.__is_async = False
+        self.__thread_pool = executor
 
     @property
     def task_id(self) -> str:
         return self.__task_id
-
-    @property
-    def is_async(self) -> bool:
-        return self.__is_async
-
-    @is_async.setter
-    def is_async(self, is_async: bool):
-        self.__is_async = is_async
 
     @property
     def delay(self) -> float:
@@ -78,19 +72,18 @@ class PyNotiTask(object):
             if self.__preprocessor is not None:
                 handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
             if not handled:
-                self.__fn(*self.__args, **self.__kwargs)
-        except Exception as e:
-            logging.error(e)
+                if asyncio.iscoroutinefunction(self.__fn):
+                    event = threading.Event()
 
-    async def async_execute(self):
-        if self.__fn is None:
-            return
-        logging.debug(f"Task[{self.__task_id}] execute.")
-        try:
-            handled = False
-            if self.__preprocessor is not None:
-                handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
-            if not handled:
-                await self.__fn(*self.__args, **self.__kwargs)
+                    def wrap_async_func():
+                        try:
+                            asyncio.run(self.__fn(*self.__args, **self.__kwargs))
+                        finally:
+                            event.set()
+
+                    self.__thread_pool.submit(wrap_async_func)
+                    event.wait()
+                else:
+                    self.__fn(*self.__args, **self.__kwargs)
         except Exception as e:
             logging.error(e)

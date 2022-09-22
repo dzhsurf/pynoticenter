@@ -83,12 +83,9 @@ class PyNotiTaskQueue(object):
             self.__preprocessor = preprocessor
 
     def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
-        return self.post_task_with_delay(0, False, fn, *args, **kwargs)
+        return self.post_task_with_delay(0, fn, *args, **kwargs)
 
-    def post_async_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
-        return self.post_task_with_delay(0, True, fn, *args, **kwargs)
-
-    def post_task_with_delay(self, delay: float, is_async: bool, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
         task_id = ""
         with self.__lock:
             if self.is_terminated:
@@ -98,8 +95,7 @@ class PyNotiTaskQueue(object):
             # add task
             task_id = str(self.__task_id_count + 1)
             self.__task_id_count += 1
-            task = PyNotiTask(task_id, delay, fn, self.__preprocessor, *args, **kwargs)
-            task.is_async = is_async
+            task = PyNotiTask(task_id, delay, fn, self.__preprocessor, *args, executor=self.__thread_pool, **kwargs)
             self.__task_dict[task_id] = task
             self.__scheduler_runloop.call_soon_threadsafe(self.__tasks_update_callback__)
 
@@ -230,19 +226,8 @@ class PyNotiTaskQueue(object):
             if task is None:
                 continue
 
-            if not task.is_async:
-                task.execute()
-                self.__pop_task__(task.task_id)
-            else:
-                event = threading.Event()
-
-                def wrap_async_func():
-                    asyncio.run(task.async_execute())
-                    event.set()
-
-                self.__thread_pool.submit(wrap_async_func)
-                event.wait()
-                self.__pop_task__(task.task_id)
+            task.execute()
+            self.__pop_task__(task.task_id)
 
     def __worker_thread__(self):
         logging.info(f"{self.__log_prefix__()}: worker thread begin.")
