@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import threading
+from concurrent.futures import ThreadPoolExecutor
 
 # import functools
-from typing import Any
+from typing import Any, Awaitable
 from xml.dom import NotFoundErr
 
 from pynoticenter.options import PyNotiOptions
@@ -102,6 +104,9 @@ class PyNotiCenter:
     global __default_global_lock
     __default_global_lock = threading.RLock()
 
+    __common_thread_pool: ThreadPoolExecutor = None
+    __scheduler_thread: threading.Thread = None
+    __scheduler_runloop: asyncio.AbstractEventLoop = None
     __lock: threading.RLock = None
     __default_queue: PyNotiTaskQueue = None
     __task_queue_dict: dict[str, PyNotiTaskQueue] = None
@@ -112,10 +117,14 @@ class PyNotiCenter:
 
     def __init__(self):
         self.__lock = threading.RLock()
-        self.__default_queue = PyNotiTaskQueue(None)
+        self.__common_thread_pool = ThreadPoolExecutor(max_workers=5)
+        self.__scheduler_runloop = asyncio.new_event_loop()
+        self.__scheduler_thread = threading.Thread(target=self.__scheduler_thread__)
+        self.__default_queue = PyNotiTaskQueue(None, self.__scheduler_runloop, self.__common_thread_pool)
         self.__task_queue_dict = dict[str, PyNotiTaskQueue]()
         self.__unnamed_task_queue = list[PyNotiTaskQueue]()
         self.__notifications_dict = dict[str, PyNotiObserverCollection]()
+        self.__scheduler_thread.start()
 
     @staticmethod
     def default() -> PyNotiCenter:
@@ -128,12 +137,16 @@ class PyNotiCenter:
 
     def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
         """Post task to default task queue."""
-        return self.post_task_with_delay(0, fn, *args, **kwargs)
+        return self.post_task_with_delay(0, False, fn, *args, **kwargs)
 
-    def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_async_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
+        """Post task to default task queue."""
+        return self.post_task_with_delay(0, True, fn, *args, **kwargs)
+
+    def post_task_with_delay(self, delay: float, is_async: bool, fn: callable, *args: Any, **kwargs: Any) -> str:
         """Post task with delay to default task queue."""
         with self.__lock:
-            return self.__default_queue.post_task_with_delay(delay, fn, *args, **kwargs)
+            return self.__default_queue.post_task_with_delay(delay, is_async, fn, *args, **kwargs)
 
     def post_task_to_task_queue(self, queue_name: str, fn: callable, *args: Any, **kwargs: Any) -> str:
         with self.__lock:
@@ -197,6 +210,11 @@ class PyNotiCenter:
             q.terminate(wait)
         # terminate default task queue
         self.__default_queue.terminate(wait)
+        # exit scheduler thread
+        def stop_scheduler_runloop():
+            self.__scheduler_runloop.stop()
+
+        self.__scheduler_runloop.call_soon_threadsafe(stop_scheduler_runloop)
         logging.info("PyNotiCenter shutdown end")
 
     def release_task_queue(self, queue_name: str, wait: bool):
@@ -231,7 +249,7 @@ class PyNotiCenter:
                 return
 
         if queue_name is None:
-            queue = PyNotiTaskQueue(queue_name)
+            queue = PyNotiTaskQueue(queue_name, self.__scheduler_runloop, self.__common_thread_pool)
             with self.__lock:
                 self.__unnamed_task_queue.add(queue)
                 self.__unnamed_task_queue = [queue for queue in self.__unnamed_task_queue if not queue.is_terminated]
@@ -241,7 +259,7 @@ class PyNotiCenter:
             if queue_name in self.__task_queue_dict:
                 return self.__task_queue_dict[queue_name]
 
-        queue = PyNotiTaskQueue(queue_name)
+        queue = PyNotiTaskQueue(queue_name, self.__scheduler_runloop, self.__common_thread_pool)
         with self.__lock:
             self.__task_queue_dict[queue_name] = queue
         return queue
@@ -268,6 +286,20 @@ class PyNotiCenter:
         with self.__lock:
             if queue_name in self.__task_queue_dict:
                 return self.__task_queue_dict[queue_name]
+
+        return None
+
+    def __scheduler_thread__(self):
+        logging.info(f"scheduler thread begin.")
+        asyncio.set_event_loop(self.__scheduler_runloop)
+        loop = self.__scheduler_runloop
+        try:
+            loop.run_forever()
+        finally:
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            loop.close()
+            logging.info("scheduler thread end.")
+            self.__scheduler_thread = None
 
     def add_observer(
         self, name: str, fn: callable, receiver: Any | None = None, *, options: PyNotiOptions | None = None

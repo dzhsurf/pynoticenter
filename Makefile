@@ -43,5 +43,4 @@ mypy:
 
 .PHONY: demo
 demo:
-	pip install -e .
 	poetry run bash -c 'cd src/example/ && python demo.py'

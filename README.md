@@ -11,7 +11,7 @@ As it is based on a multi-threaded mode, multi-threaded development must pay att
 
 The library mainly provides 2 features.
 
-* Task queue: each task queue will run in a separate thread. 
+* Task queue: each task queue will run in a separate thread.
 * Message notification: the message notification scheduling is based on the built-in task queue.
 
 
@@ -32,7 +32,7 @@ def fn(*args: Any, **kwargs: Any):
 
 def main():
     PyNotiCenter.default().post_task(fn, "hello world")
-    PyNotiCenter.default().post_task_with_delay(5, fn, "hello", "world", "delay 5s")
+    PyNotiCenter.default().post_task_with_delay(5, False, fn, "hello", "world", "delay 5s")
     PyNotiCenter.default().shutdown(wait=True)
 ```
 
@@ -69,7 +69,7 @@ def main():
 
 ```python
 def fn():
-    pass 
+    pass
 
 def switch_to_gtk_thread(fn: callable, *args: Any, **kwargs) -> bool:
     GLib.idle_add(fn)
@@ -79,7 +79,7 @@ def main():
     queue = PyNotiCenter.default().create_task_queue("mytask")
     queue.set_preprocessor(switch_to_gtk_thread)
     queue.post_task(fn) # fn run in gtk thread
-    
+
     # notification run on mytask queue.
     PyNotiCenter.default().add_observer("say_hello", fn, options=PyNotiOptions(queue="mytask"))
     PyNotiCenter.default().notify_observers("say_hello")
