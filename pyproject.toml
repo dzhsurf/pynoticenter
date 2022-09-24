@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pynoticenter"
-version = "0.1.7"
+version = "0.1.8"
 description = "Python client side notification center."
 authors = ["dzhsurf <dzhsurf@gmail.com>"]
 keywords = ["post task", "task queue", "notification", "notification center"]
