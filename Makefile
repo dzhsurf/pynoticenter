@@ -1,7 +1,7 @@
 .PHONY:
 .DEFAULT_GOAL := help
 
-SRC_DIRS := src tests docs
+SRC_DIRS := src tests docs/source/conf.py
 define PRINT_HELP_PYSCRIPT
 import re, sys
 
