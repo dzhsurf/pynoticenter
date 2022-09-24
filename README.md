@@ -1,7 +1,11 @@
 PyNotiCenter Documentation
 ==========================
 
-[![Docs](https://img.shields.io/badge/docs-latest-informational)](https://dzhsurf.github.io/pynoticenter/)
+[![Docs](https://img.shields.io/badge/docs-latest-informational)](https://dzhsurf.github.io/pynoticenter/) 
+
+![](https://pypi.org/static/images/logo-small.95de8436.svg) PyPI: [https://pypi.org/project/pynoticenter/](https://pypi.org/project/pynoticenter/)
+
+
 
 ## Introduction
 
