@@ -3,6 +3,7 @@ import logging
 import sys
 import threading
 import time
+from multiprocessing import Process
 from select import select
 from typing import Any
 
@@ -57,6 +58,12 @@ def mytask_preprocessor(fn: callable, *args: Any, **kwargs: Any) -> bool:
     return False
 
 
+async def multiple_process_fn(x):
+    p = Process(target=fn, args=(f"process {x}", 0))
+    p.start()
+    p.join()
+
+
 def main():
     queue = PyNotiCenter.default().create_task_queue("mytask")
     queue.set_preprocessor(mytask_preprocessor)
@@ -76,6 +83,10 @@ def main():
     # PyNotiCenter.default().add_observer("say_hello", a.say_hi, a, options=PyNotiOptions(queue="mytask"))
 
     # PyNotiCenter.default().notify_observers("say_hello", "lily")
+
+    for i in range(100):
+        name = f"{i % 5}"
+        PyNotiCenter.default().post_task_to_task_queue(name, multiple_process_fn, i)
 
     PyNotiCenter.default().shutdown(wait=True)
 
