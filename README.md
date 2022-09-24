@@ -1,7 +1,7 @@
-PyNotiCenter Documentation
-==========================
+Quickstart
+==========
 
-[![Docs](https://img.shields.io/badge/docs-latest-informational)](https://dzhsurf.github.io/pynoticenter/) 
+[![Docs](https://img.shields.io/badge/docs-latest-informational)](https://dzhsurf.github.io/pynoticenter/)
 
 ![](https://pypi.org/static/images/logo-small.95de8436.svg) PyPI: [https://pypi.org/project/pynoticenter/](https://pypi.org/project/pynoticenter/)
 
@@ -58,10 +58,10 @@ hello world delay 5s
 async def async_fn(msg: str):
   await asyncio.sleep(1)
   print(f"msg: {msg}")
- 
+
 def fn(msg: str):
   print(f"msg: {msg}")
-  
+
 def main():
   PyNotiCenter.default().post_task(fn, "hello")
   PyNotiCenter.default().post_task(async_fn, "hello")

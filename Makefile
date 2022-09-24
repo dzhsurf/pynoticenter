@@ -41,6 +41,14 @@ pydoc:
 mypy:
 	poetry mypy $(SRC_DIRS)
 
+.PHONY: gendocs
+gendocs:
+	sphinx-apidoc -o docs/source src/pynoticenter
+
+.PHONY: docs
+docs:
+	sphinx-build -b html docs/source docs/build/html
+
 .PHONY: demo
 demo:
 	poetry run bash -c 'cd src/example/ && python demo.py'

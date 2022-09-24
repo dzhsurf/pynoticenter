@@ -16,74 +16,187 @@ class PyNotiCenterInterface(ABC):
 
     @abstractmethod
     def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
+        """post task to default task queue.
+
+        Args:
+            fn (callable): callback function
+            *args (Any): args
+            **kwargs (Any): kwargs
+
+        Returns:
+            str: return task id
+        """
         pass
 
     @abstractmethod
     def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
+        """post task to default task queue with delay.
+
+        Args:
+            fn (callable): callback function
+            delay (float): delay time in seconds.
+            *args (Any): args
+            **kwargs (Any): kwargs
+
+        Returns:
+            str: return task id
+        """
         pass
 
     @abstractmethod
     def post_task_to_task_queue(self, queue_name: str, fn: callable, *args: Any, **kwargs: Any) -> str:
+        """post task to named task queue.
+
+        Args:
+            fn (callable): callback function
+            queue_name (str): queue name, create from create_task_queue
+            *args (Any): args
+            **kwargs (Any): kwargs
+
+        Returns:
+            str: return task id
+        """
         pass
 
     @abstractmethod
     def cancel_task(self, task_id):
+        """cancel task from default task queue with task id
+
+        Args:
+            task_id (str): task id
+
+        """
         pass
 
     @abstractmethod
     def cancel_task_with_queue_name(self, queue_name: str, task_id: str):
+        """cancel task from named task queue with task id
+
+        Args:
+            queue_name (str): task queue name
+            task_id (str): task id
+
+        """
         pass
 
     @abstractmethod
     def wait_until_task_complete(self):
-        pass
-
-    @abstractmethod
-    def wait_until_task_complete(self):
+        """wait until all task complete. it will block until there is no task."""
         pass
 
     @abstractmethod
     def shutdown(self, wait: bool):
+        """shutdown PyNotiCenter. Once shutdown, you can't call it anymore.
+
+        When shutdown is called, you can not post new task to task queue, all task queue will ignore the new task.
+        When wait is setted, it will block until all task complete, if not set, all task queue will shutdown as fast as possible.
+
+        Args:
+            wait (bool): set wait for task complete or not.
+
+        """
         pass
 
     @abstractmethod
     def release_task_queue(self, queue_name: str, wait: bool):
+        """release task queue
+
+        Args:
+            queue_name (str): task queue name
+            wait (bool): wait for wait complete.
+
+        """
         pass
 
     @abstractmethod
     def create_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
+        """create task queue with name
+
+        Args:
+            queue_name (str): task queue name
+
+        Returns:
+            PyNotiTaskQueue: task queue
+
+        """
         pass
 
     @abstractmethod
     def get_default_task_queue(self) -> PyNotiTaskQueue:
+        """return default task queue
+
+        Returns:
+            PyNotiTaskQueue: default task queue
+        """
         pass
 
     @abstractmethod
     def get_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
+        """return named task queue
+
+        Args:
+            queue_name (str): task queue name
+
+        Returns:
+            PyNotiTaskQueue: task queue
+        """
         pass
 
     @abstractmethod
     def add_observer(self, name: str, fn: callable, receiver: Any = None, *, options: PyNotiOptions = None):
+        """Add observer to PyNotiCenter
+
+        Args:
+            name (str): notification name
+            fn (callable): callback function
+            receiver (Any): receiver object
+            options (PyNotiOptions): options
+        """
         pass
 
     @abstractmethod
     def remove_observer(self, name: str, fn: callable, receiver: Any = None):
+        """Remove observer from PyNotiCenter
+
+        Args:
+            name (str): notification name
+            fn (callable): callback function
+            receiver (Any): receiver object
+        """
         pass
 
     @abstractmethod
     def remove_observers(self, receiver: Any):
+        """Remove observers from PyNotiCenter
+
+        Args:
+            receiver (Any): receiver object
+        """
         pass
 
     @abstractmethod
     def remove_all_observers(self):
+        """Remove all observers from PyNotiCenter"""
         pass
 
     @abstractmethod
     def notify_observers(self, name: str, *args: Any, **kwargs: Any):
+        """Notify observers
+
+        Args:
+            name (str): notification name
+            *args (Any): args
+            **kwargs (Any): kwargs
+        """
         pass
 
 
 class PyNotiCenter(PyNotiCenterInterface):
+    """PyNotiCenter Implement
+
+    :meta private:
+    """
+
     global __default_global_instance
     __default_global_instance = None
     global __default_global_lock
@@ -121,11 +234,9 @@ class PyNotiCenter(PyNotiCenterInterface):
         return __default_global_instance
 
     def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
-        """Post task to default task queue."""
         return self.post_task_with_delay(0, fn, *args, **kwargs)
 
     def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
-        """Post task with delay to default task queue."""
         with self.__lock:
             return self.__default_queue.post_task_with_delay(delay, fn, *args, **kwargs)
 
@@ -170,11 +281,6 @@ class PyNotiCenter(PyNotiCenterInterface):
                 event.wait(timeout=0.5)
 
     def shutdown(self, wait: bool):
-        """Shutdown all tasks, include the unnamed task queue.
-
-        Args:
-            wait (bool): wait until all task done.
-        """
         logging.info(f"PyNotiCenter start shutdown, wait = {wait}")
         task_queues = list[PyNotiTaskQueue]()
         with self.__lock:
@@ -199,12 +305,6 @@ class PyNotiCenter(PyNotiCenterInterface):
         logging.info("PyNotiCenter shutdown end")
 
     def release_task_queue(self, queue_name: str, wait: bool):
-        """release task queue resource.
-
-        Args:
-            queue_name (str): queue name
-            wait (bool): wait until task done
-        """
         if queue_name is None:
             return
         with self.__lock:
@@ -213,17 +313,6 @@ class PyNotiCenter(PyNotiCenterInterface):
                 queue.terminate(wait)
 
     def create_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
-        """Create task queue by name.
-
-        If name always exist, it will return the existen queue.
-        If name is None, it will create unnamed task queue.
-
-        Args:
-            queue_name (str): queue name
-
-        Returns:
-            PyNotiTaskQueue: task queue
-        """
         with self.__lock:
             if self.__is_shutdown:
                 logging.error(f"fail on create task queue {queue_name}. PyNotiCenter is shutdown.")
@@ -250,17 +339,6 @@ class PyNotiCenter(PyNotiCenterInterface):
             return self.__default_queue
 
     def get_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
-        """Get task queue from notification center.
-
-        If name is None, return default task queue.
-
-        Args:
-            queue_name (str): queue name
-
-        Returns:
-            PyNotiTaskQueue: return task queue
-        """
-
         if queue_name is None:
             return self.__default_queue
 
@@ -283,7 +361,6 @@ class PyNotiCenter(PyNotiCenterInterface):
             self.__scheduler_thread = None
 
     def add_observer(self, name: str, fn: callable, receiver: Any = None, *, options: PyNotiOptions = None):
-        """add notification observer"""
         with self.__lock:
             observer_collection: PyNotiObserverCollection = None
             if name in self.__notifications_dict:
@@ -312,7 +389,6 @@ class PyNotiCenter(PyNotiCenterInterface):
             self.__notifications_dict.clear()
 
     def notify_observers(self, name: str, *args: Any, **kwargs: Any):
-        """post notification"""
         observer_collection = self.__get_notification_observer_collection__(name)
         if observer_collection is not None:
             observer_collection.notify_observers(*args, **kwargs)
