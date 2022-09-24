@@ -63,26 +63,23 @@ class PyNotiTask(object):
         logging.debug(f"Task[{self.__task_id}] cancel task.")
         self.__timer_handle.cancel()
 
-    def execute(self):
+    def is_async(self):
+        return asyncio.iscoroutinefunction(self.__fn)
+
+    async def execute(self):
         if self.__fn is None:
             return
         logging.debug(f"Task[{self.__task_id}] execute.")
         try:
             handled = False
             if self.__preprocessor is not None:
-                handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
+                if asyncio.iscoroutinefunction(self.__preprocessor):
+                    handled = await self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
+                else:
+                    handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
             if not handled:
                 if asyncio.iscoroutinefunction(self.__fn):
-                    event = threading.Event()
-
-                    def wrap_async_func():
-                        try:
-                            asyncio.run(self.__fn(*self.__args, **self.__kwargs))
-                        finally:
-                            event.set()
-
-                    self.__thread_pool.submit(wrap_async_func)
-                    event.wait()
+                    await self.__fn(*self.__args, **self.__kwargs)
                 else:
                     self.__fn(*self.__args, **self.__kwargs)
         except Exception as e:

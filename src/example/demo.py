@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import sys
+import threading
 import time
 from select import select
 from typing import Any
@@ -21,10 +22,6 @@ logger = logging.getLogger(__name__)
 # demo
 
 
-def fn(*args: Any, **kwargs: Any):
-    print(*args)
-
-
 def say_hello(who: str):
     print(f"{who}: hello")
 
@@ -37,19 +34,20 @@ class A:
         print(f"A.say_bye, {who}: bye")
 
 
-async def async_fn():
-    print("async_fn")
-    await asyncio.sleep(1)
-    time.sleep(1)
-    print("async_fn finish")
+def fn(msg: str, wait: float = 0.0):
+    tid = threading.current_thread().ident
+    print(f"fn: {msg}, start in thread,", tid)
+    if wait > 0:
+        time.sleep(wait)
+    print(f"fn: {msg} end, wait {wait}s")
 
 
-async def mytask2_fn():
-    print("mytask2 fn")
-    # await task here
-    task = asyncio.ensure_future(async_fn())
-    await task
-    print("mytask2 fn end")
+async def async_fn(msg: str, wait: float = 0.0):
+    tid = threading.current_thread().ident
+    print(f"async fn: {msg} start in thread", tid)
+    if wait > 0:
+        await asyncio.sleep(wait)
+    print(f"async fn: {msg} end, wait {wait}s")
 
 
 def mytask_preprocessor(fn: callable, *args: Any, **kwargs: Any) -> bool:
@@ -59,23 +57,18 @@ def mytask_preprocessor(fn: callable, *args: Any, **kwargs: Any) -> bool:
     return False
 
 
-def fn_wait():
-    print("fn_wait 5s begin")
-    time.sleep(5)
-    print("fn_wait 5s finish")
-
-
 def main():
     queue = PyNotiCenter.default().create_task_queue("mytask")
     queue.set_preprocessor(mytask_preprocessor)
-    queue.post_task(fn, "fn 1")
-    queue.post_task(mytask2_fn)
-    queue.post_task(fn, "fn 2")
-    task_id = queue.post_task_with_delay(5.0, fn_wait)
-    queue.post_task(fn, "fn 3")
-    PyNotiCenter.default().post_task(fn, "fn 4")
-    PyNotiCenter.default().post_task(mytask2_fn)
+    queue.post_task(fn, "1")
+    queue.post_task(async_fn, "2", 5)
+    queue.post_task(fn, "3", 1)
+    task_id = queue.post_task_with_delay(5.0, fn, "6")
+    queue.post_task(fn, "4", 5)
+    queue.post_task_with_delay(1.0, async_fn, "5")
     # queue.cancel_task(task_id)
+    PyNotiCenter.default().post_task(fn, "d_1")
+    PyNotiCenter.default().post_task(async_fn, "d_2", 1)
 
     # a = A()
     # PyNotiCenter.default().add_observer("say_hello", say_hello)
