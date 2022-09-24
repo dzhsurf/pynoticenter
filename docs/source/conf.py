@@ -50,7 +50,8 @@ add_module_names = False
 
 # html_theme = 'alabaster'
 # html_theme = 'nature'
-html_theme = "sphinxdoc"
+# html_theme = "sphinxdoc"
+html_theme = "piccolo_theme"
 html_static_path = ["_static"]
 
 html_sidebars = {"**": ["globaltoc.html", "relations.html", "sourcelink.html", "searchbox.html"]}
