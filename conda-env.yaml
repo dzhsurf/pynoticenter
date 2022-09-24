@@ -12,3 +12,4 @@ dependencies:
     - myst_parser==0.18.0
     - recommonmark==0.7.1
     - sphinx-intl==2.0.1
+    - piccolo-theme==0.12.0
