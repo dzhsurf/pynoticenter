@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>API Documentation &#8212; pynoticenter https://pypi.org/project/pynoticenter/ documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pynoticenter https://pypi.org/project/pynoticenter/ documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="api-documentation">
+<h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">How to import package</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="kn">from</span> <span class="nn">pynoticenter</span> <span class="kn">import</span> <span class="n">PyNotiCenter</span>
+
+   <span class="k">def</span> <span class="nf">fn</span><span class="p">():</span>
+      <span class="k">pass</span>
+
+   <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+      <span class="n">PyNotiCenter</span><span class="o">.</span><span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">post_task</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="module-pynoticenter.noticenter">
+<span id="pynoticenter"></span><h2>PyNotiCenter<a class="headerlink" href="#module-pynoticenter.noticenter" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyNotiCenterInterface</span></span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>PyNotiCenter Interface</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.add_observer">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pynoticenter.options.PyNotiOptions" title="pynoticenter.options.PyNotiOptions"><span class="pre">pynoticenter.options.PyNotiOptions</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.add_observer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add observer to PyNotiCenter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – notification name</p></li>
+<li><p><strong>fn</strong> (<em>callable</em>) – callback function</p></li>
+<li><p><strong>receiver</strong> (<em>Any</em>) – receiver object</p></li>
+<li><p><strong>options</strong> (<a class="reference internal" href="#pynoticenter.options.PyNotiOptions" title="pynoticenter.options.PyNotiOptions"><em>PyNotiOptions</em></a>) – options</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.cancel_task">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cancel_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.cancel_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>cancel task from default task queue with task id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task_id</strong> (<em>str</em>) – task id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.cancel_task_with_queue_name">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cancel_task_with_queue_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.cancel_task_with_queue_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>cancel task from named task queue with task id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queue_name</strong> (<em>str</em>) – task queue name</p></li>
+<li><p><strong>task_id</strong> (<em>str</em>) – task id</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.create_task_queue">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_task_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pynoticenter.task_queue.PyNotiTaskQueue" title="pynoticenter.task_queue.PyNotiTaskQueue"><span class="pre">pynoticenter.task_queue.PyNotiTaskQueue</span></a></span></span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.create_task_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>create task queue with name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>queue_name</strong> (<em>str</em>) – task queue name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>task queue</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pynoticenter.task_queue.PyNotiTaskQueue" title="pynoticenter.task_queue.PyNotiTaskQueue">PyNotiTaskQueue</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.get_default_task_queue">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_default_task_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pynoticenter.task_queue.PyNotiTaskQueue" title="pynoticenter.task_queue.PyNotiTaskQueue"><span class="pre">pynoticenter.task_queue.PyNotiTaskQueue</span></a></span></span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.get_default_task_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>return default task queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>default task queue</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#pynoticenter.task_queue.PyNotiTaskQueue" title="pynoticenter.task_queue.PyNotiTaskQueue">PyNotiTaskQueue</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.get_task_queue">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_task_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pynoticenter.task_queue.PyNotiTaskQueue" title="pynoticenter.task_queue.PyNotiTaskQueue"><span class="pre">pynoticenter.task_queue.PyNotiTaskQueue</span></a></span></span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.get_task_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>return named task queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>queue_name</strong> (<em>str</em>) – task queue name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>task queue</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pynoticenter.task_queue.PyNotiTaskQueue" title="pynoticenter.task_queue.PyNotiTaskQueue">PyNotiTaskQueue</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.notify_observers">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">notify_observers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.notify_observers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notify observers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – notification name</p></li>
+<li><p><strong>*args</strong> (<em>Any</em>) – args</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – kwargs</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.post_task">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.post_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>post task to default task queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fn</strong> (<em>callable</em>) – callback function</p></li>
+<li><p><strong>*args</strong> (<em>Any</em>) – args</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – kwargs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return task id</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.post_task_to_task_queue">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_task_to_task_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.post_task_to_task_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>post task to named task queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fn</strong> (<em>callable</em>) – callback function</p></li>
+<li><p><strong>queue_name</strong> (<em>str</em>) – queue name, create from create_task_queue</p></li>
+<li><p><strong>*args</strong> (<em>Any</em>) – args</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – kwargs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return task id</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.post_task_with_delay">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">post_task_with_delay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.post_task_with_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>post task to default task queue with delay.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fn</strong> (<em>callable</em>) – callback function</p></li>
+<li><p><strong>delay</strong> (<em>float</em>) – delay time in seconds.</p></li>
+<li><p><strong>*args</strong> (<em>Any</em>) – args</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – kwargs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return task id</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.release_task_queue">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">release_task_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.release_task_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>release task queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queue_name</strong> (<em>str</em>) – task queue name</p></li>
+<li><p><strong>wait</strong> (<em>bool</em>) – wait for wait complete.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.remove_all_observers">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_all_observers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.remove_all_observers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all observers from PyNotiCenter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.remove_observer">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.remove_observer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove observer from PyNotiCenter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – notification name</p></li>
+<li><p><strong>fn</strong> (<em>callable</em>) – callback function</p></li>
+<li><p><strong>receiver</strong> (<em>Any</em>) – receiver object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.remove_observers">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_observers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receiver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.remove_observers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove observers from PyNotiCenter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>receiver</strong> (<em>Any</em>) – receiver object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.shutdown">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>shutdown PyNotiCenter. Once shutdown, you can’t call it anymore.</p>
+<p>When shutdown is called, you can not post new task to task queue, all task queue will ignore the new task.
+When wait is setted, it will block until all task complete, if not set, all task queue will shutdown as fast as possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>wait</strong> (<em>bool</em>) – set wait for task complete or not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pynoticenter.noticenter.PyNotiCenterInterface.wait_until_task_complete">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wait_until_task_complete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.noticenter.PyNotiCenterInterface.wait_until_task_complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>wait until all task complete. it will block until there is no task.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pynoticenter.options">
+<span id="pynotioptions"></span><h2>PyNotiOptions<a class="headerlink" href="#module-pynoticenter.options" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pynoticenter.options.PyNotiOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyNotiOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.options.PyNotiOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-pynoticenter.task">
+<span id="pynotitask"></span><h2>PyNotiTask<a class="headerlink" href="#module-pynoticenter.task" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-pynoticenter.task_queue">
+<span id="pynotitaskqueue"></span><h2>PyNotiTaskQueue<a class="headerlink" href="#module-pynoticenter.task_queue" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pynoticenter.task_queue.PyNotiTaskQueue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PyNotiTaskQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduler_runloop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">asyncio.events.AbstractEventLoop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">concurrent.futures.thread.ThreadPoolExecutor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pynoticenter.task_queue.PyNotiTaskQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>PyNotiTaskQueue, each task queue has its own thread. All function thread safety</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-pynoticenter.noticenter">PyNotiCenter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pynoticenter.options">PyNotiOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pynoticenter.task">PyNotiTask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pynoticenter.task_queue">PyNotiTaskQueue</a></li>
+</ul>
+</li>
+</ul>
+
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="quickstart.html"
+                          title="previous chapter">Quickstart</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/apis.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pynoticenter https://pypi.org/project/pynoticenter/ documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Documentation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, Hiram Deng.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    </div>
+  </body>
+</html>
