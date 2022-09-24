@@ -9,7 +9,7 @@ PyNotiCenter Documentation
 
 ## Introduction
 
-PyNotiCenter is a multithreaded task queue and message notification center. It mainly provides in-process lightweight task scheduling management for client applications, that why we choose the multi-threaded mode. Although the multi-threaded mode is not a good practice most of the time. But in developing client applications, it will be one of the most important base components.
+PyNotiCenter is a multithreaded task queue and message notification center. It mainly provides in-process lightweight task scheduling management for client applications, that why we choose the multi-threaded mode. Although the multi-threaded mode is not a good practice most of the time in Python(In CPU-bound tasks it can't be genuinely parallel as the GIL exists). But in developing client applications, it will be one of the most important base components.
 
 As it is based on a multi-threaded mode, multi-threaded development must pay attention to thread safety issues, which is inevitable. In order to reduce the complexity for developers, all interfaces of this library are thread safety. It is designed to be called in any thread to guarantee the same results as expected, even though this will cause some performance issues.
 
