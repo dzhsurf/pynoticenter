@@ -54,4 +54,11 @@ add_module_names = False
 html_theme = "piccolo_theme"
 html_static_path = ["_static"]
 
-html_sidebars = {"**": ["globaltoc.html", "relations.html", "sourcelink.html", "searchbox.html"]}
+# html_sidebars = {"**": ["globaltoc.html", "relations.html", "sourcelink.html", "searchbox.html"]}
+html_short_title = 'PyNotiCenter Documentation'
+html_favicon = 'https://pypi.org/static/images/logo-small.95de8436.svg'
+html_theme_options = {
+    "source_url": 'https://github.com/dzhsurf/pynoticenter/',
+    "source_icon": "github",
+    #"banner_text": 'banner text',
+}

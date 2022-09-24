@@ -3,11 +3,10 @@ Quickstart
 
 [![Docs](https://img.shields.io/badge/docs-latest-informational)](https://dzhsurf.github.io/pynoticenter/)
 
-![](https://pypi.org/static/images/logo-small.95de8436.svg) PyPI: [https://pypi.org/project/pynoticenter/](https://pypi.org/project/pynoticenter/)
+PyPI: [https://pypi.org/project/pynoticenter/](https://pypi.org/project/pynoticenter/)
 
-
-
-## Introduction
+Introduction
+------------
 
 PyNotiCenter is a multithreaded task queue and message notification center. It mainly provides in-process lightweight task scheduling management for client applications, that why we choose the multi-threaded mode. Although the multi-threaded mode is not a good practice most of the time in Python(In CPU-bound tasks it can't be genuinely parallel as the GIL exists). But in developing client applications, it will be one of the most important base components.
 
@@ -18,15 +17,15 @@ The library mainly provides 2 features.
 * Task queue: each task queue will run in a separate thread.
 * Message notification: the message notification scheduling is based on the built-in task queue.
 
-
-
-## Install
+Install
+-------
 
 ```shell
 pip install pynoticenter
 ```
 
-## Code Example
+Code Example
+------------
 
 * Post task to task queue.
 
@@ -69,8 +68,6 @@ def main():
   PyNotiCenter.default().shutdown(wait=True)
 ```
 
-
-
 * Notification
 
 ```python
@@ -106,4 +103,3 @@ def main():
     PyNotiCenter.default().add_observer("say_hello", fn, options=PyNotiOptions(queue="mytask"))
     PyNotiCenter.default().notify_observers("say_hello")
 ```
-
