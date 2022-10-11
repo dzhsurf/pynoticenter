@@ -78,9 +78,15 @@ class PyNotiTask(object):
             handled = False
             if self.__preprocessor is not None:
                 if asyncio.iscoroutinefunction(self.__preprocessor):
-                    handled = await self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
+                    if self.__fn_with_task_id:
+                        handled = await self.__preprocessor(self.__fn, self.__task_id, *self.__args, **self.__kwargs)
+                    else:
+                        handled = await self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
                 else:
-                    handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
+                    if self.__fn_with_task_id:
+                        handled = self.__preprocessor(self.__fn, self.__task_id, *self.__args, **self.__kwargs)
+                    else:
+                        handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
             if not handled:
                 if asyncio.iscoroutinefunction(self.__fn):
                     if self.__fn_with_task_id:
