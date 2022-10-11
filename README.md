@@ -90,16 +90,28 @@ def main():
 def fn():
     pass
 
-def switch_to_gtk_thread(fn: callable, *args: Any, **kwargs) -> bool:
+def switch_to_gtk_thread(fn: Callable, *args: Any, **kwargs) -> bool:
     GLib.idle_add(fn)
     return True
 
 def main():
-    queue = PyNotiCenter.default().create_task_queue("mytask")
+    queue = PyNotiCenter.default().create_task_queue(PyNotiOptions(queue='mytask'))
     queue.set_preprocessor(switch_to_gtk_thread)
     queue.post_task(fn) # fn run in gtk thread
 
     # notification run on mytask queue.
     PyNotiCenter.default().add_observer("say_hello", fn, options=PyNotiOptions(queue="mytask"))
     PyNotiCenter.default().notify_observers("say_hello")
+```
+
+Post task with task id
+
+```python
+def fn_with_task_id(task_id: str, msg: str):
+    pass
+
+def main():
+    queue = PyNotiCenter.default().create_task_queue(PyNotiOptions(queue='mytask', fn_with_task_id=True))
+    task_id = queue.post_task(fn_with_task_id, 'Hi')
+    queue.cancel_task(task_id)
 ```

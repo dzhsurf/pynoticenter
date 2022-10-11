@@ -3,25 +3,26 @@ import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from inspect import iscoroutine, iscoroutinefunction
-from typing import Any, Awaitable, Callable, Coroutine
+from typing import Any, Awaitable, Callable, Coroutine, Dict
 
 
 class PyNotiTask(object):
     __task_id: str = ""
-    __preprocessor: callable = None
+    __preprocessor: Callable = None
     __delay: float = 0
-    __fn: callable = None
+    __fn: Callable = None
     __args: Any = None
-    __kwargs: dict[str, Any] = None
+    __kwargs: Dict[str, Any] = None
     __timer_handle: asyncio.TimerHandle = None
     __thread_pool: ThreadPoolExecutor = None
+    __fn_with_task_id: bool = False
 
     def __init__(
         self,
         task_id: str,
         delay: float,
-        fn: callable,
-        preprocessor: callable,
+        fn: Callable,
+        preprocessor: Callable,
         *args: Any,
         executor: ThreadPoolExecutor,
         **kwargs: Any,
@@ -33,6 +34,9 @@ class PyNotiTask(object):
         self.__args = args
         self.__kwargs = kwargs
         self.__thread_pool = executor
+
+    def set_with_task_id(self, with_task_id: bool):
+        self.__fn_with_task_id = with_task_id
 
     @property
     def task_id(self) -> str:
@@ -79,8 +83,14 @@ class PyNotiTask(object):
                     handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
             if not handled:
                 if asyncio.iscoroutinefunction(self.__fn):
-                    await self.__fn(*self.__args, **self.__kwargs)
+                    if self.__fn_with_task_id:
+                        await self.__fn(self.__task_id, *self.__args, **self.__kwargs)
+                    else:
+                        await self.__fn(*self.__args, **self.__kwargs)
                 else:
-                    self.__fn(*self.__args, **self.__kwargs)
+                    if self.__fn_with_task_id:
+                        self.__fn(self.__task_id, *self.__args, **self.__kwargs)
+                    else:
+                        self.__fn(*self.__args, **self.__kwargs)
         except Exception as e:
             logging.error(e)

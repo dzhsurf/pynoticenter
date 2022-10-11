@@ -3,7 +3,7 @@ import logging
 import threading
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any
+from typing import Any, Callable, Dict, List
 
 from pynoticenter.noticenter_observer import PyNotiObserver, PyNotiObserverCollection
 from pynoticenter.options import PyNotiOptions
@@ -15,11 +15,11 @@ class PyNotiCenterInterface(ABC):
     """PyNotiCenter Interface"""
 
     @abstractmethod
-    def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task(self, fn: Callable, *args: Any, **kwargs: Any) -> str:
         """post task to default task queue.
 
         Args:
-            fn (callable): callback function
+            fn (Callable): callback function
             *args (Any): args
             **kwargs (Any): kwargs
 
@@ -29,11 +29,11 @@ class PyNotiCenterInterface(ABC):
         pass
 
     @abstractmethod
-    def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_with_delay(self, delay: float, fn: Callable, *args: Any, **kwargs: Any) -> str:
         """post task to default task queue with delay.
 
         Args:
-            fn (callable): callback function
+            fn (Callable): callback function
             delay (float): delay time in seconds.
             *args (Any): args
             **kwargs (Any): kwargs
@@ -44,11 +44,11 @@ class PyNotiCenterInterface(ABC):
         pass
 
     @abstractmethod
-    def post_task_to_task_queue(self, queue_name: str, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_to_task_queue(self, queue_name: str, fn: Callable, *args: Any, **kwargs: Any) -> str:
         """post task to named task queue.
 
         Args:
-            fn (callable): callback function
+            fn (Callable): callback function
             queue_name (str): queue name, create from create_task_queue
             *args (Any): args
             **kwargs (Any): kwargs
@@ -109,11 +109,11 @@ class PyNotiCenterInterface(ABC):
         pass
 
     @abstractmethod
-    def create_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
+    def create_task_queue(self, options: PyNotiOptions) -> PyNotiTaskQueue:
         """create task queue with name
 
         Args:
-            queue_name (str): task queue name
+            options (PyNotiOptions): task queue options
 
         Returns:
             PyNotiTaskQueue: task queue
@@ -143,24 +143,24 @@ class PyNotiCenterInterface(ABC):
         pass
 
     @abstractmethod
-    def add_observer(self, name: str, fn: callable, receiver: Any = None, *, options: PyNotiOptions = None):
+    def add_observer(self, name: str, fn: Callable, receiver: Any = None, *, options: PyNotiOptions = None):
         """Add observer to PyNotiCenter
 
         Args:
             name (str): notification name
-            fn (callable): callback function
+            fn (Callable): callback function
             receiver (Any): receiver object
             options (PyNotiOptions): options
         """
         pass
 
     @abstractmethod
-    def remove_observer(self, name: str, fn: callable, receiver: Any = None):
+    def remove_observer(self, name: str, fn: Callable, receiver: Any = None):
         """Remove observer from PyNotiCenter
 
         Args:
             name (str): notification name
-            fn (callable): callback function
+            fn (Callable): callback function
             receiver (Any): receiver object
         """
         pass
@@ -207,9 +207,9 @@ class PyNotiCenter(PyNotiCenterInterface):
     __scheduler_runloop: asyncio.AbstractEventLoop = None
     __lock: threading.RLock = None
     __default_queue: PyNotiTaskQueue = None
-    __task_queue_dict: dict[str, PyNotiTaskQueue] = None
-    __unnamed_task_queue: list[PyNotiTaskQueue] = None
-    __notifications_dict: dict[str, PyNotiObserverCollection] = None
+    __task_queue_dict: Dict[str, PyNotiTaskQueue] = None
+    __unnamed_task_queue: List[PyNotiTaskQueue] = None
+    __notifications_dict: Dict[str, PyNotiObserverCollection] = None
 
     __is_shutdown: bool = False
 
@@ -219,9 +219,9 @@ class PyNotiCenter(PyNotiCenterInterface):
         self.__scheduler_runloop = asyncio.new_event_loop()
         self.__scheduler_thread = threading.Thread(target=self.__scheduler_thread__)
         self.__default_queue = PyNotiTaskQueue(None, self.__scheduler_runloop, self.__common_thread_pool)
-        self.__task_queue_dict = dict[str, PyNotiTaskQueue]()
-        self.__unnamed_task_queue = list[PyNotiTaskQueue]()
-        self.__notifications_dict = dict[str, PyNotiObserverCollection]()
+        self.__task_queue_dict = {}
+        self.__unnamed_task_queue = []
+        self.__notifications_dict = {}
         self.__scheduler_thread.start()
 
     @staticmethod
@@ -233,18 +233,18 @@ class PyNotiCenter(PyNotiCenterInterface):
                 __default_global_instance = PyNotiCenter()
         return __default_global_instance
 
-    def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task(self, fn: Callable, *args: Any, **kwargs: Any) -> str:
         return self.post_task_with_delay(0, fn, *args, **kwargs)
 
-    def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_with_delay(self, delay: float, fn: Callable, *args: Any, **kwargs: Any) -> str:
         with self.__lock:
             return self.__default_queue.post_task_with_delay(delay, fn, *args, **kwargs)
 
-    def post_task_to_task_queue(self, queue_name: str, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_to_task_queue(self, queue_name: str, fn: Callable, *args: Any, **kwargs: Any) -> str:
         with self.__lock:
             q = self.get_task_queue(queue_name)
             if q is None:
-                q = self.create_task_queue(queue_name)
+                q = self.create_task_queue(PyNotiOptions(queue=queue_name))
             if q is not None:
                 return q.post_task(fn, *args, **kwargs)
         return ""
@@ -312,26 +312,28 @@ class PyNotiCenter(PyNotiCenterInterface):
                 queue = self.__task_queue_dict.pop(queue_name)
                 queue.terminate(wait)
 
-    def create_task_queue(self, queue_name: str) -> PyNotiTaskQueue:
+    def create_task_queue(self, options: PyNotiOptions) -> PyNotiTaskQueue:
         with self.__lock:
             if self.__is_shutdown:
-                logging.error(f"fail on create task queue {queue_name}. PyNotiCenter is shutdown.")
+                logging.error(f"fail on create task queue {options.queue}. PyNotiCenter is shutdown.")
                 return
 
-        if queue_name is None:
-            queue = PyNotiTaskQueue(queue_name, self.__scheduler_runloop, self.__common_thread_pool)
+        if options.queue is None:
+            queue = PyNotiTaskQueue(options.queue, self.__scheduler_runloop, self.__common_thread_pool)
+            queue.set_fn_with_task_id(options.fn_with_task_id)
             with self.__lock:
                 self.__unnamed_task_queue.add(queue)
                 self.__unnamed_task_queue = [queue for queue in self.__unnamed_task_queue if not queue.is_terminated]
             return queue
 
         with self.__lock:
-            if queue_name in self.__task_queue_dict:
-                return self.__task_queue_dict[queue_name]
+            if options.queue in self.__task_queue_dict:
+                return self.__task_queue_dict[options.queue]
 
-        queue = PyNotiTaskQueue(queue_name, self.__scheduler_runloop, self.__common_thread_pool)
+        queue = PyNotiTaskQueue(options.queue, self.__scheduler_runloop, self.__common_thread_pool)
+        queue.set_fn_with_task_id(options.fn_with_task_id)
         with self.__lock:
-            self.__task_queue_dict[queue_name] = queue
+            self.__task_queue_dict[options.queue] = queue
         return queue
 
     def get_default_task_queue(self) -> PyNotiTaskQueue:
@@ -360,7 +362,7 @@ class PyNotiCenter(PyNotiCenterInterface):
             logging.info("scheduler thread end.")
             self.__scheduler_thread = None
 
-    def add_observer(self, name: str, fn: callable, receiver: Any = None, *, options: PyNotiOptions = None):
+    def add_observer(self, name: str, fn: Callable, receiver: Any = None, *, options: PyNotiOptions = None):
         with self.__lock:
             observer_collection: PyNotiObserverCollection = None
             if name in self.__notifications_dict:
@@ -372,7 +374,7 @@ class PyNotiCenter(PyNotiCenterInterface):
             observer_collection.add_observer(fn, receiver, options=options)
             self.__notifications_dict[name] = observer_collection
 
-    def remove_observer(self, name: str, fn: callable, receiver: Any = None):
+    def remove_observer(self, name: str, fn: Callable, receiver: Any = None):
         observer_collection = self.__get_notification_observer_collection__(name)
         if observer_collection is not None:
             observer_collection.remove_observer(fn, receiver)

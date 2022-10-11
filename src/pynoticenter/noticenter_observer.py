@@ -1,20 +1,20 @@
 """PyNotiObserver"""
 import threading
-from typing import Any
+from typing import Any, Callable, List
 
 from pynoticenter.options import PyNotiOptions
 
 
 class PyNotiObserver(object):
-    __fn: callable = None
+    __fn: Callable = None
     __options: PyNotiOptions = None
 
-    def __init__(self, fn: callable, options: PyNotiOptions):
+    def __init__(self, fn: Callable, options: PyNotiOptions):
         self.__fn = fn
         self.__options = options
 
     @property
-    def fn(self) -> callable:
+    def fn(self) -> Callable:
         return self.__fn
 
     @property
@@ -25,18 +25,18 @@ class PyNotiObserver(object):
 class PyNotiObserverCollection:
     __lock: threading.RLock = None
     __name: str = ""
-    __fn_list: list[PyNotiObserver] = None
-    __receiver_observers_dict: dict[Any, list[PyNotiObserver]] = None
-    __scheduler: callable = None
+    __fn_list: List[PyNotiObserver] = None
+    __receiver_observers_dict: dict[Any, List[PyNotiObserver]] = None
+    __scheduler: Callable = None
 
-    def __init__(self, name: str, scheduler: callable):
+    def __init__(self, name: str, scheduler: Callable):
         self.__scheduler = scheduler
         self.__lock = threading.RLock()
         self.__name = name
-        self.__fn_list = list[PyNotiObserver]()
-        self.__receiver_observers_dict = dict[Any, list[PyNotiObserver]]()
+        self.__fn_list = List[PyNotiObserver]()
+        self.__receiver_observers_dict = dict[Any, List[PyNotiObserver]]()
 
-    def add_observer(self, fn: callable, receiver: Any = None, *, options: PyNotiOptions = None):
+    def add_observer(self, fn: Callable, receiver: Any = None, *, options: PyNotiOptions = None):
         if fn is None:
             return
 
@@ -50,7 +50,7 @@ class PyNotiObserverCollection:
             else:
                 self.__receiver_observers_dict[receiver] = list([PyNotiObserver(fn, options)])
 
-    def remove_observer(self, fn: callable, receiver: Any = None):
+    def remove_observer(self, fn: Callable, receiver: Any = None):
         def remove_fn(item: PyNotiObserver) -> bool:
             return item.fn == fn
 

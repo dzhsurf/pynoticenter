@@ -5,7 +5,8 @@ import threading
 import time
 from multiprocessing import Process
 from select import select
-from typing import Any
+from typing import Any, Callable
+from pynoticenter import task
 
 from pynoticenter.noticenter import PyNotiCenter
 from pynoticenter.options import PyNotiOptions
@@ -51,7 +52,7 @@ async def async_fn(msg: str, wait: float = 0.0):
     print(f"async fn: {msg} end, wait {wait}s")
 
 
-def mytask_preprocessor(fn: callable, *args: Any, **kwargs: Any) -> bool:
+def mytask_preprocessor(fn: Callable, *args: Any, **kwargs: Any) -> bool:
     print("mytask preprocessor")
     # IF YOU SCHEDULE NEW TASK AFTER YOU SHUTDOWN THE PYNOTICENTER, IT WILL BE IGNORED.
     # PyNotiCenter.default().post_task_to_task_queue("mytask2", mytask2_fn)
@@ -63,9 +64,11 @@ async def multiple_process_fn(x):
     p.start()
     p.join()
 
+def fn_with_task_id(task_id: str, msg: str):
+    print('task_id =>', task_id, msg)
 
 def main():
-    queue = PyNotiCenter.default().create_task_queue("mytask")
+    queue = PyNotiCenter.default().create_task_queue(PyNotiOptions(queue='mytaskqueue'))
     queue.set_preprocessor(mytask_preprocessor)
     queue.post_task(fn, "1")
     queue.post_task(async_fn, "2", 5)
@@ -76,6 +79,9 @@ def main():
     # queue.cancel_task(task_id)
     PyNotiCenter.default().post_task(fn, "d_1")
     PyNotiCenter.default().post_task(async_fn, "d_2", 1)
+
+    q2 = PyNotiCenter.default().create_task_queue(PyNotiOptions(queue='q2', fn_with_task_id=True))
+    q2.post_task(fn_with_task_id, 'hi')
 
     # a = A()
     # PyNotiCenter.default().add_observer("say_hello", say_hello)

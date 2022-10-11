@@ -4,7 +4,7 @@ import threading
 import time
 from asyncio import futures
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, final
+from typing import Any, Callable, Dict, List, final
 
 from pynoticenter import utils
 from pynoticenter.task import PyNotiTask
@@ -21,29 +21,33 @@ class PyNotiTaskQueue(object):
     __wait_until_task_done: bool = True
     __is_started: bool = False
     __task_id_count: int = 0
-    __task_dict: dict[str, PyNotiTask] = None
+    __task_dict: Dict[str, PyNotiTask] = None
     __tasks_counter_signal: threading.Event = None
-    __preprocessor: callable = None
+    __preprocessor: Callable = None
     __execute_runloop: asyncio.AbstractEventLoop = None
     __execute_task_thread: threading.Thread = None
     __execute_thread_event: threading.Event = None
     __scheduler_runloop: asyncio.AbstractEventLoop = None
-    __pending_tasks: list[PyNotiTask] = None
+    __pending_tasks: List[PyNotiTask] = None
     __thread_pool: ThreadPoolExecutor = None
     __is_executing: bool = False
+    __fn_with_task_id: bool = False
 
     def __init__(self, name: str, scheduler_runloop: asyncio.AbstractEventLoop, thread_pool: ThreadPoolExecutor):
         self.__name = name if name is not None else f"{id(self)}"
         self.__lock = threading.RLock()
         self.__task_dict = dict()
         self.__tasks_counter_signal = threading.Event()
-        self.__pending_tasks = list[PyNotiTask]()
+        self.__pending_tasks = []
         self.__preprocessor = None
         self.__thread_pool = thread_pool
         self.__scheduler_runloop = scheduler_runloop
         self.__execute_runloop = asyncio.new_event_loop()
         self.__execute_thread_event = threading.Event()
         self.__execute_task_thread = threading.Thread(target=self.__worker_thread__)
+
+    def set_fn_with_task_id(self, with_task_id: bool):
+        self.__fn_with_task_id = with_task_id
 
     @property
     def is_terminated(self) -> bool:
@@ -79,14 +83,14 @@ class PyNotiTaskQueue(object):
         if wait:
             utils.Wait(event)
 
-    def set_preprocessor(self, preprocessor: callable):
+    def set_preprocessor(self, preprocessor: Callable):
         with self.__lock:
             self.__preprocessor = preprocessor
 
-    def post_task(self, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task(self, fn: Callable, *args: Any, **kwargs: Any) -> str:
         return self.post_task_with_delay(0, fn, *args, **kwargs)
 
-    def post_task_with_delay(self, delay: float, fn: callable, *args: Any, **kwargs: Any) -> str:
+    def post_task_with_delay(self, delay: float, fn: Callable, *args: Any, **kwargs: Any) -> str:
         task_id = ""
         with self.__lock:
             if self.is_terminated:
@@ -97,6 +101,7 @@ class PyNotiTaskQueue(object):
             task_id = str(self.__task_id_count + 1)
             self.__task_id_count += 1
             task = PyNotiTask(task_id, delay, fn, self.__preprocessor, *args, executor=self.__thread_pool, **kwargs)
+            task.set_with_task_id(self.__fn_with_task_id)
             self.__task_dict[task_id] = task
             self.__tasks_update_callback__()
 
