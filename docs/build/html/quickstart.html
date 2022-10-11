@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Quickstart &#8212; pynoticenter https://pypi.org/project/pynoticenter/ documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,7 +12,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <script src="_static/js/petite-vue.js"></script>
     <link rel="shortcut icon" href="https://pypi.org/static/images/logo-small.95de8436.svg"/>
@@ -118,7 +120,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
     </nav>
 </div>
@@ -141,11 +143,11 @@
           <div class="body" role="main">
             
   <section id="quickstart">
-<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">¶</a></h1>
 <p><a class="reference external" href="https://dzhsurf.github.io/pynoticenter/"><img alt="Docs" src="https://img.shields.io/badge/docs-latest-informational" /></a></p>
 <p>PyPI: <a class="reference external" href="https://pypi.org/project/pynoticenter/">https://pypi.org/project/pynoticenter/</a></p>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
 <p>PyNotiCenter is a multithreaded task queue and message notification center. It mainly provides in-process lightweight task scheduling management for client applications, that why we choose the multi-threaded mode. Although the multi-threaded mode is not a good practice most of the time in Python(In CPU-bound tasks it can’t be genuinely parallel as the GIL exists). But in developing client applications, it will be one of the most important base components.</p>
 <p>As it is based on a multi-threaded mode, multi-threaded development must pay attention to thread safety issues, which is inevitable. In order to reduce the complexity for developers, all interfaces of this library are thread safety. It is designed to be called in any thread to guarantee the same results as expected, even though this will cause some performance issues.</p>
 <p>The library mainly provides 2 features.</p>
@@ -155,13 +157,13 @@
 </ul>
 </section>
 <section id="install">
-<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install pynoticenter
 </pre></div>
 </div>
 </section>
 <section id="code-example">
-<h2>Code Example<a class="headerlink" href="#code-example" title="Permalink to this headline">¶</a></h2>
+<h2>Code Example<a class="headerlink" href="#code-example" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Post task to task queue.</p></li>
 </ul>
@@ -223,18 +225,28 @@ hello world delay 5s
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">fn</span><span class="p">():</span>
     <span class="k">pass</span>
 
-<span class="k">def</span> <span class="nf">switch_to_gtk_thread</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">switch_to_gtk_thread</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">GLib</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
     <span class="k">return</span> <span class="kc">True</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">queue</span> <span class="o">=</span> <span class="n">PyNotiCenter</span><span class="o">.</span><span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">create_task_queue</span><span class="p">(</span><span class="s2">&quot;mytask&quot;</span><span class="p">)</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">PyNotiCenter</span><span class="o">.</span><span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">create_task_queue</span><span class="p">(</span><span class="n">PyNotiOptions</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s1">&#39;mytask&#39;</span><span class="p">))</span>
     <span class="n">queue</span><span class="o">.</span><span class="n">set_preprocessor</span><span class="p">(</span><span class="n">switch_to_gtk_thread</span><span class="p">)</span>
     <span class="n">queue</span><span class="o">.</span><span class="n">post_task</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="c1"># fn run in gtk thread</span>
 
     <span class="c1"># notification run on mytask queue.</span>
     <span class="n">PyNotiCenter</span><span class="o">.</span><span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">add_observer</span><span class="p">(</span><span class="s2">&quot;say_hello&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">PyNotiOptions</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s2">&quot;mytask&quot;</span><span class="p">))</span>
     <span class="n">PyNotiCenter</span><span class="o">.</span><span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">notify_observers</span><span class="p">(</span><span class="s2">&quot;say_hello&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Post task with task id</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">fn_with_task_id</span><span class="p">(</span><span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">PyNotiCenter</span><span class="o">.</span><span class="n">default</span><span class="p">()</span><span class="o">.</span><span class="n">create_task_queue</span><span class="p">(</span><span class="n">PyNotiOptions</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s1">&#39;mytask&#39;</span><span class="p">,</span> <span class="n">fn_with_task_id</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">post_task</span><span class="p">(</span><span class="n">fn_with_task_id</span><span class="p">,</span> <span class="s1">&#39;Hi&#39;</span><span class="p">)</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">cancel_task</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -288,7 +300,7 @@ hello world delay 5s
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Hiram Deng.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.0.
     </div>
 
 <p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
