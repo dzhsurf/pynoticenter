@@ -1,15 +1,16 @@
 import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from multiprocessing.pool import ThreadPool
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 
-def __thread_fn__(event: threading.Event, fn: Callable, *args: Any, **kwargs: Any):
+def __thread_fn__(event: threading.Event, fn: Callable[..., Any], *args: Any, **kwargs: Any):
     pass
 
 
-def RunInThread(fn: Callable, *args: Any, executor: ThreadPoolExecutor = None, **kwargs: Any) -> threading.Event:
+def RunInThread(
+    fn: Callable[..., Any], *args: Any, executor: Optional[ThreadPoolExecutor] = None, **kwargs: Any
+) -> threading.Event:
     event = threading.Event()
 
     def thread_fn():

@@ -1,42 +1,35 @@
 """PyNotiObserver"""
 import threading
-from typing import Any, Callable, List
+from typing import Any, Callable, Dict, List, Optional
 
 from pynoticenter.options import PyNotiOptions
 
 
 class PyNotiObserver(object):
-    __fn: Callable = None
-    __options: PyNotiOptions = None
-
-    def __init__(self, fn: Callable, options: PyNotiOptions):
-        self.__fn = fn
-        self.__options = options
+    def __init__(self, fn: Callable[..., Any], options: Optional[PyNotiOptions]):
+        self.__fn: Callable[..., Any] = fn
+        self.__options: Optional[PyNotiOptions] = options
 
     @property
-    def fn(self) -> Callable:
+    def fn(self) -> Callable[..., Any]:
         return self.__fn
 
     @property
     def options(self) -> PyNotiOptions:
+        if self.__options is None:
+            self.__options = PyNotiOptions(queue=f"{id(self)}")
         return self.__options
 
 
 class PyNotiObserverCollection:
-    __lock: threading.RLock = None
-    __name: str = ""
-    __fn_list: List[PyNotiObserver] = None
-    __receiver_observers_dict: dict[Any, List[PyNotiObserver]] = None
-    __scheduler: Callable = None
-
-    def __init__(self, name: str, scheduler: Callable):
+    def __init__(self, name: str, scheduler: Callable[..., Any]):
+        self.__name: str = name
         self.__scheduler = scheduler
-        self.__lock = threading.RLock()
-        self.__name = name
-        self.__fn_list = List[PyNotiObserver]()
-        self.__receiver_observers_dict = dict[Any, List[PyNotiObserver]]()
+        self.__lock: threading.RLock = threading.RLock()
+        self.__fn_list: List[PyNotiObserver] = []
+        self.__receiver_observers_dict: Dict[Any, List[PyNotiObserver]] = {}
 
-    def add_observer(self, fn: Callable, receiver: Any = None, *, options: PyNotiOptions = None):
+    def add_observer(self, fn: Callable[..., Any], receiver: Any = None, *, options: Optional[PyNotiOptions] = None):
         if fn is None:
             return
 
@@ -50,7 +43,7 @@ class PyNotiObserverCollection:
             else:
                 self.__receiver_observers_dict[receiver] = list([PyNotiObserver(fn, options)])
 
-    def remove_observer(self, fn: Callable, receiver: Any = None):
+    def remove_observer(self, fn: Callable[..., Any], receiver: Any = None):
         def remove_fn(item: PyNotiObserver) -> bool:
             return item.fn == fn
 

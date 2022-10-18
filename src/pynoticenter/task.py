@@ -1,39 +1,29 @@
 import asyncio
 import logging
-import threading
 from concurrent.futures import ThreadPoolExecutor
-from inspect import iscoroutine, iscoroutinefunction
-from typing import Any, Awaitable, Callable, Coroutine, Dict
+from typing import Any, Callable, Dict, Optional
 
 
-class PyNotiTask(object):
-    __task_id: str = ""
-    __preprocessor: Callable = None
-    __delay: float = 0
-    __fn: Callable = None
-    __args: Any = None
-    __kwargs: Dict[str, Any] = None
-    __timer_handle: asyncio.TimerHandle = None
-    __thread_pool: ThreadPoolExecutor = None
-    __fn_with_task_id: bool = False
-
+class PyNotiTask:
     def __init__(
         self,
         task_id: str,
         delay: float,
-        fn: Callable,
-        preprocessor: Callable,
+        fn: Optional[Callable[..., Any]],
+        preprocessor: Optional[Callable[..., Any]],
         *args: Any,
-        executor: ThreadPoolExecutor,
+        executor: Optional[ThreadPoolExecutor],
         **kwargs: Any,
     ):
-        self.__task_id = task_id
-        self.__preprocessor = preprocessor
-        self.__delay = delay
-        self.__fn = fn
-        self.__args = args
-        self.__kwargs = kwargs
-        self.__thread_pool = executor
+        self.__task_id: str = task_id
+        self.__preprocessor: Optional[Callable[..., Any]] = preprocessor
+        self.__delay: float = delay
+        self.__fn: Optional[Callable[..., Any]] = fn
+        self.__args: Any = args
+        self.__kwargs: Dict[str, Any] = kwargs
+        self.__timer_handle: Optional[asyncio.TimerHandle] = None
+        self.__thread_pool: Optional[ThreadPoolExecutor] = executor
+        self.__fn_with_task_id: bool = False
 
     def set_with_task_id(self, with_task_id: bool):
         self.__fn_with_task_id = with_task_id
@@ -53,7 +43,7 @@ class PyNotiTask(object):
     def is_cancelled(self) -> bool:
         if self.__timer_handle is None:
             return False
-        return self.__timer_handle.cancelled
+        return self.__timer_handle.cancelled()
 
     def set_timer_handle(self, handle: asyncio.TimerHandle):
         self.__timer_handle = handle
@@ -61,7 +51,7 @@ class PyNotiTask(object):
     def cancel(self):
         if self.__timer_handle is None:
             return
-        if self.__timer_handle.cancelled:
+        if self.__timer_handle.cancelled():
             logging.debug(f"Task[{self.__task_id}] has been cancelled.")
             return
         logging.debug(f"Task[{self.__task_id}] cancel task.")
@@ -79,12 +69,12 @@ class PyNotiTask(object):
             if self.__preprocessor is not None:
                 if asyncio.iscoroutinefunction(self.__preprocessor):
                     if self.__fn_with_task_id:
-                        handled = await self.__preprocessor(self.__fn, self.__task_id, *self.__args, **self.__kwargs)
+                        handled = await self.__preprocessor(self.__fn, *self.__task_id, *self.__args, **self.__kwargs)
                     else:
                         handled = await self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
                 else:
                     if self.__fn_with_task_id:
-                        handled = self.__preprocessor(self.__fn, self.__task_id, *self.__args, **self.__kwargs)
+                        handled = self.__preprocessor(self.__fn, *self.__task_id, *self.__args, **self.__kwargs)
                     else:
                         handled = self.__preprocessor(self.__fn, *self.__args, **self.__kwargs)
             if not handled:
